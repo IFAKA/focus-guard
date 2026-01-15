@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "Focus Guard",
+  "version": "1.0.0",
+  "description": "Prevent tab switching during video playback or AI chatbot response generation",
+  "permissions": ["tabs"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "exclude_matches": ["*://music.youtube.com/*"],
+      "js": ["content-scripts/video-detector.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://claude.ai/*"],
+      "js": ["content-scripts/claude-detector.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://chatgpt.com/*", "https://chat.openai.com/*"],
+      "js": ["content-scripts/chatgpt-detector.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://gemini.google.com/*"],
+      "js": ["content-scripts/gemini-detector.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.perplexity.ai/*", "https://perplexity.ai/*"],
+      "js": ["content-scripts/perplexity-detector.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://x.com/i/grok*", "https://grok.x.ai/*"],
+      "js": ["content-scripts/grok-detector.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://aistudio.google.com/*"],
+      "js": ["content-scripts/aistudio-detector.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
