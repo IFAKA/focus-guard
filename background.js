@@ -68,6 +68,32 @@
   });
 
   /**
+   * Handle tab creation - prevent new tabs when locked tab exists
+   */
+  chrome.tabs.onCreated.addListener((tab) => {
+    const { id: newTabId, windowId } = tab;
+
+    if (!windowId || !newTabId) return;
+
+    const lockedTabId = getLockedTabForWindow(windowId);
+
+    // If there's a locked tab and this isn't it, close the new tab
+    if (lockedTabId && lockedTabId !== newTabId) {
+      // Small delay to ensure tab is fully created before removal
+      setTimeout(() => {
+        chrome.tabs.remove(newTabId).catch(() => {
+          // Tab may have already been closed
+        });
+        // Ensure locked tab is active
+        chrome.tabs.update(lockedTabId, { active: true }).catch(() => {
+          // Locked tab may have been closed - clean up
+          lockedTabs.delete(lockedTabId);
+        });
+      }, 10);
+    }
+  });
+
+  /**
    * Clean up when tabs are closed
    */
   chrome.tabs.onRemoved.addListener((tabId) => {
