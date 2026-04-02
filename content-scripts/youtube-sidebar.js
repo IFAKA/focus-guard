@@ -7,6 +7,10 @@
     if (secondary) {
       secondary.remove();
     }
+    const panelsFullBleed = document.getElementById('panels-full-bleed-container');
+    if (panelsFullBleed) {
+      panelsFullBleed.remove();
+    }
   }
 
   // Run immediately if DOM is ready
