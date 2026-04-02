@@ -11,6 +11,7 @@
     if (panelsFullBleed) {
       panelsFullBleed.remove();
     }
+    document.querySelectorAll('a.yt-simple-endpoint.ytd-video-owner-renderer').forEach(el => el.remove());
   }
 
   // Run immediately if DOM is ready
