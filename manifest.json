@@ -15,6 +15,11 @@
       "run_at": "document_idle"
     },
     {
+      "matches": ["https://www.youtube.com/watch*"],
+      "js": ["content-scripts/youtube-sidebar.js"],
+      "run_at": "document_start"
+    },
+    {
       "matches": ["https://claude.ai/*"],
       "js": ["content-scripts/claude-detector.js"],
       "run_at": "document_idle"
