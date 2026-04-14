@@ -6,7 +6,7 @@
   let lastReportedState = null;
 
   function isVideoPlaying(video) {
-    return !video.paused && !video.ended && video.readyState > 2 && video.currentTime > 0;
+    return !video.paused && !video.ended && video.readyState > 2 && video.currentTime > 0 && !video.muted;
   }
 
   function checkVideoPlayback() {
