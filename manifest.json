@@ -3,7 +3,7 @@
   "name": "Focus Guard",
   "version": "1.0.0",
   "description": "Prevent tab switching during video playback or AI chatbot response generation",
-  "permissions": ["tabs"],
+  "permissions": ["tabs", "clipboardWrite"],
   "background": {
     "service_worker": "background.js"
   },
