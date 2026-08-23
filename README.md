@@ -24,6 +24,17 @@ When a video is playing or an AI is generating a response, you can't switch tabs
 | Tab switch attempt | Instantly returns to locked tab |
 | Action completes | Tab automatically unlocks |
 
+## Settings
+
+Click the Focus Guard icon in the toolbar to open the popup, where you can toggle each guard independently:
+
+| Toggle | Description | Default |
+|--------|-------------|---------|
+| Video lock | Lock tab while videos play | On |
+| AI lock | Lock tab while an AI generates a response | On |
+
+Changes apply instantly — disabling a toggle releases its locks immediately, and re-enforcing resumes as soon as it's turned back on.
+
 ## Supported Sites
 
 ### Video Detection
@@ -58,6 +69,8 @@ The extension uses multiple strategies to detect when AI is generating:
 focus-guard/
 ├── manifest.json              # Extension configuration
 ├── background.js              # Tab lock management
+├── popup.html                 # Toolbar popup (toggles)
+├── popup.js                   # Popup toggle logic
 ├── content-scripts/
 │   ├── video-detector.js      # Video playback detection
 │   ├── claude-detector.js     # Claude.ai

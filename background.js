@@ -5,6 +5,33 @@
   // Track lock state per tab: tabId -> { sources: Set<string>, windowId: number }
   const lockedTabs = new Map();
 
+  // Toggle settings (persisted via popup); both locks enabled by default
+  const STORAGE_KEY = 'settings';
+  const DEFAULT_SETTINGS = { videoLock: true, aiLock: true };
+  let settings = { ...DEFAULT_SETTINGS };
+
+  function loadSettings() {
+    return chrome.storage.local.get(STORAGE_KEY).then((result) => {
+      settings = { ...DEFAULT_SETTINGS, ...(result[STORAGE_KEY] || {}) };
+    });
+  }
+
+  // Kick off immediately so enforcement uses real settings ASAP
+  const settingsLoaded = loadSettings();
+
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes[STORAGE_KEY]) {
+      settings = { ...DEFAULT_SETTINGS, ...(changes[STORAGE_KEY].newValue || {}) };
+    }
+  });
+
+  /**
+   * Whether a lock source category is currently enabled
+   */
+  function isSourceEnabled(source) {
+    return source === 'video' ? Boolean(settings.videoLock) : Boolean(settings.aiLock);
+  }
+
   /**
    * Handle lock state changes from content scripts
    */
@@ -39,11 +66,15 @@
   }
 
   /**
-   * Get the locked tab for a window (if any)
+   * Get the locked tab for a window (if any), respecting enabled toggles.
+   * Raw lock state is always tracked so re-enabling a toggle takes effect instantly.
    */
-  function getLockedTabForWindow(windowId) {
+  async function getLockedTabForWindow(windowId) {
+    await settingsLoaded.catch(() => {});
     for (const [tabId, info] of lockedTabs.entries()) {
-      if (info.windowId === windowId && info.sources.size > 0) {
+      if (info.windowId !== windowId || info.sources.size === 0) continue;
+      const hasEnabledSource = Array.from(info.sources).some(isSourceEnabled);
+      if (hasEnabledSource) {
         return tabId;
       }
     }
@@ -53,10 +84,10 @@
   /**
    * Handle tab activation - switch back if locked tab exists
    */
-  chrome.tabs.onActivated.addListener((activeInfo) => {
+  chrome.tabs.onActivated.addListener(async (activeInfo) => {
     const { tabId, windowId } = activeInfo;
 
-    const lockedTabId = getLockedTabForWindow(windowId);
+    const lockedTabId = await getLockedTabForWindow(windowId);
 
     if (lockedTabId && lockedTabId !== tabId) {
       // Switch back to locked tab silently
@@ -70,12 +101,12 @@
   /**
    * Handle tab creation - prevent new tabs when locked tab exists
    */
-  chrome.tabs.onCreated.addListener((tab) => {
+  chrome.tabs.onCreated.addListener(async (tab) => {
     const { id: newTabId, windowId } = tab;
 
     if (!windowId || !newTabId) return;
 
-    const lockedTabId = getLockedTabForWindow(windowId);
+    const lockedTabId = await getLockedTabForWindow(windowId);
 
     // If there's a locked tab and this isn't it, close the new tab
     if (lockedTabId && lockedTabId !== newTabId) {

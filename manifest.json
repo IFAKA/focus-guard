@@ -3,9 +3,13 @@
   "name": "Focus Guard",
   "version": "1.0.0",
   "description": "Prevent tab switching during video playback or AI chatbot response generation",
-  "permissions": ["tabs", "clipboardWrite"],
+  "permissions": ["tabs", "clipboardWrite", "storage"],
   "background": {
     "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Focus Guard"
   },
   "content_scripts": [
     {
@@ -15,13 +19,23 @@
       "run_at": "document_idle"
     },
     {
-      "matches": ["https://www.youtube.com/watch*"],
+      "matches": ["https://www.youtube.com/*"],
       "js": ["content-scripts/youtube-sidebar.js"],
       "run_at": "document_start"
     },
     {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["content-scripts/youtube-layout.js"],
+      "run_at": "document_idle"
+    },
+    {
       "matches": ["https://music.youtube.com/*"],
       "js": ["content-scripts/youtube-music-selectable-text.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://open.spotify.com/*"],
+      "js": ["content-scripts/spotify-copy.js"],
       "run_at": "document_start"
     },
     {
