@@ -2,29 +2,18 @@
 (function() {
   'use strict';
 
-  function removeSecondary() {
-    const secondary = document.getElementById('secondary');
-    if (secondary) {
-      secondary.remove();
+  // CSS hiding is instantaneous and survives SPA re-renders without flash
+  const style = document.createElement('style');
+  style.id = 'fg-yt-sidebar-styles';
+  style.textContent = `
+    #masthead-container {
+      position: fixed !important;
+      top: -100vh !important;
+      pointer-events: none !important;
     }
-    const panelsFullBleed = document.getElementById('panels-full-bleed-container');
-    if (panelsFullBleed) {
-      panelsFullBleed.remove();
-    }
-    document.querySelectorAll('a.yt-simple-endpoint.ytd-video-owner-renderer').forEach(el => el.remove());
-  }
-
-  // Run immediately if DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', removeSecondary);
-  } else {
-    removeSecondary();
-  }
-
-  // YouTube is a SPA — re-run on navigation
-  const observer = new MutationObserver(removeSecondary);
-  observer.observe(document.body || document.documentElement, {
-    childList: true,
-    subtree: true
-  });
+    #secondary,
+    #panels-full-bleed-container,
+    a.yt-simple-endpoint.ytd-video-owner-renderer { display: none !important; }
+  `;
+  (document.head || document.documentElement).appendChild(style);
 })();
